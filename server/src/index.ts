@@ -13,40 +13,43 @@ app.use(express.json());
 
 const storage = multer.memoryStorage();
 const update = multer({ storage });
-let userData: Array<Record<string,string>> = [];
+let userData: Array<Record<string, string>> = [];
 
 
-app.post('/api/files', update.single('file'),  async (req, res) => {
+app.post('/api/files', update.single('file'), async (req, res) => {
 
     //extraer el archivo que recibimos
-    const {file} = req;
+    const { file } = req;
     if (!file) return res.status(404).send('insertar archivo');
 
     //validar que sea un archivo del tipo csv
     if (file.mimetype !== 'text/csv') return res.status(404).send('formato de archivo incorrecto');
 
     //transofrmar de Buffer( archivo en formato binario) a string y despues a json
-    try{
+    try {
         const csv = Buffer.from(file.buffer).toString('utf-8')
         const json = csvToJson.csvStringToJson(csv);
         //guardamos el json en db o memoria local
         userData = json
-    }catch(err){
+    } catch (err) {
         res.status(500).send('Error convirtiendo a Json');
     };
 
-    return res.status(200).json({data: userData, messege: 'ok'});
+    return res.status(200).json({ data: userData, messege: 'ok' });
 });
 
 app.get('/api/files', async (req, res) => {
     //sacamos parametros 'q=' que pueda haber en el link de la consulta.
-    const {q} = req.query;
+    const { q } = req.query;
     if (!q) return res.status(500).send('no hay filtros');
 
-    
+    const search = q.toString().toLowerCase();
+    //filtrar
+    const filteredData = userData.filter((data) => {
+        return Object.values(data).some((value) => value.toLowerCase().includes(search));
+    });
 
-
-    return res.status(200).json({data: []})
+    return res.status(200).json({ data: filteredData });
 });
 
 
