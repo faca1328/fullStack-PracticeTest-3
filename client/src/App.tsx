@@ -1,33 +1,65 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import { uploadFile } from "./services/upload";
+
+
+const APP_STATUS = {
+  IDLE: "idle",
+  ERROR: "error",
+  LOADING: "loading",
+  READY: "ready",
+  UPLOADED: "uploaded"
+} as const
 
 function App() {
-  const [count, setCount] = useState(0)
+
+  const [data, setData] = useState<Array<Record<string,string>>>([]);
+  const [error, setError] = useState<Error | null>(null);
+  const [status, setStatus] = useState<typeof APP_STATUS[keyof typeof APP_STATUS]>(APP_STATUS.IDLE);
+  const [upfile, setUpfile] = useState<File | null>(null);
+
+  function handleInput(e: React.ChangeEvent<HTMLInputElement>) {
+    const [file] = e.target.files ?? [];
+    if (file) {
+      setUpfile(file);
+      setStatus(APP_STATUS.READY)
+    }
+  }
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if(!upfile) return;
+
+    setStatus(APP_STATUS.LOADING);
+
+    const [err, newData] = await uploadFile(upfile);
+    console.log({err, newData});
+    
+    if(err) {
+      setStatus(APP_STATUS.ERROR)
+      setError(err);
+    }
+
+    if(newData) setData(newData);
+    setStatus(APP_STATUS.UPLOADED)
+  }
 
   return (
     <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
+      <h1> Upload .CSV  </h1>
+      <hr />
+
+      <form action="input" onSubmit={handleSubmit}>
+        <input type="file" accept=".csv" id="input" name="file" onChange={handleInput} />
+        <br />
+        <button
+          disabled={APP_STATUS.READY !== status}
+        >
+          Upload
         </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+        {status === APP_STATUS.LOADING? "🔄" : "" }
+        {status === APP_STATUS.UPLOADED? "✅" : "" }
+        {status === APP_STATUS.ERROR? `❌ ${error}` : "" }
+      </form>
     </>
   )
 }

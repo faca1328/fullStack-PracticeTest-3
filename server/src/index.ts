@@ -28,7 +28,7 @@ app.post('/api/files', update.single('file'), async (req, res) => {
     //transofrmar de Buffer( archivo en formato binario) a string y despues a json
     try {
         const csv = Buffer.from(file.buffer).toString('utf-8')
-        const json = csvToJson.csvStringToJson(csv);
+        const json = csvToJson.fieldDelimiter(',').csvStringToJson(csv);
         //guardamos el json en db o memoria local
         userData = json
     } catch (err) {
