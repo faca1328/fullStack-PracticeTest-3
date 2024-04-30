@@ -31,10 +31,10 @@ export function Search( {initialData}:{initialData:DataResponse['data']} ) {
 
         searchFile(search)
             .then(response => {
-                const [err, filteredData] = response;
+                const [err, newData] = response;
                 if (err) setError(err);
 
-                if (filteredData) setData(filteredData);
+                if (newData) setData(newData);
             });
             
     }, [search, initialData]);
