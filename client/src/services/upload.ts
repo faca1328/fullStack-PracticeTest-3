@@ -1,7 +1,7 @@
 import { DataResponse } from "../App";
 
 
-export const uploadFile = async (file: File): Promise<[Error?, DataResponse?]> => {
+export const uploadFile = async (file: File): Promise<[Error?, DataResponse['data']?]> => {
     const formData = new FormData();
     formData.append('file', file)
 
@@ -15,8 +15,8 @@ export const uploadFile = async (file: File): Promise<[Error?, DataResponse?]> =
         
         if(!res.ok) return [new Error(`Failed to upload: ${res.statusText}`)]
 
-        const json = await res.json();
-        return [undefined,json]
+        const json = await res.json() as DataResponse;
+        return [undefined,json.data]
 
     }catch(err){
         if (err instanceof Error) return [err]

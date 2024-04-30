@@ -18,7 +18,7 @@ const APP_STATUS = {
 
 function App() {
 
-  const [data, setData] = useState<DataResponse>();
+  const [data, setData] = useState<DataResponse['data']>([]);
   const [error, setError] = useState<Error | null>(null);
   const [status, setStatus] = useState<typeof APP_STATUS[keyof typeof APP_STATUS]>(APP_STATUS.IDLE);
   const [upfile, setUpfile] = useState<File | null>(null);
@@ -38,19 +38,22 @@ function App() {
     setStatus(APP_STATUS.LOADING);
 
     //Logica de manejo de errores en el UploadFile
-    const [err, newData] = await uploadFile(upfile);
-    console.log({err, newData});
-    
-    if(err) {
-      setStatus(APP_STATUS.ERROR)
-      setError(err);
-    }
+    await uploadFile(upfile)
+    .then(response => {
+      const [err, newData] = response;
+      console.log({err, newData});
+      
+      if(err) {
+        setStatus(APP_STATUS.ERROR)
+        setError(err);
+      }
 
-    if(newData) setData(newData);
-    setStatus(APP_STATUS.UPLOADED)
+      if(newData) setData(newData);
+      setStatus(APP_STATUS.UPLOADED)
+  
+    })    
 
     console.log(data);
-    
   }
 
   return (
@@ -72,7 +75,7 @@ function App() {
 
         <hr />
 
-        {status === APP_STATUS.UPLOADED && (<Search initialData={data!}/>) }
+        {status === APP_STATUS.UPLOADED && (<Search initialData={data}/>) }
 
 
       </form>

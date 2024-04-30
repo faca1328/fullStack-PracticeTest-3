@@ -5,11 +5,11 @@ import { DataResponse } from "../App";
 
 
 
-export function Search({ initialData }: { initialData: DataResponse }) {
+export function Search( {initialData}:{initialData:DataResponse['data']} ) {
 
     const [error, setError] = useState<Error | null>(null);
-    const [data, setData] = useState<Array<Record<string, string>>>(initialData.data);
-    const [search, setSearch] = useState("");
+    const [data, setData] = useState<DataResponse['data']>(initialData);
+    const [search, setSearch] = useState<string>("");
 
 
     
@@ -27,7 +27,7 @@ export function Search({ initialData }: { initialData: DataResponse }) {
 
     // Llamada a la API teniendo en cuenta el filtro.
     useEffect(() => {
-        if (!search) return setData(initialData.data);
+        if (!search) return setData(initialData);
 
         searchFile(search)
             .then(response => {
@@ -42,7 +42,7 @@ export function Search({ initialData }: { initialData: DataResponse }) {
     return (
         <div>
             <h3>Filter :</h3>
-            <input type="search" name="" onChange={handleChange} placeholder="Search" value={search} />
+            <input type="search" name="" onChange={handleChange} placeholder="Search" />
             <hr />
             <ul>
                 {data.map((item, index) => (
