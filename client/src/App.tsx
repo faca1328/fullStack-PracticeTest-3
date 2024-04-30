@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { uploadFile } from "./services/upload";
+import { Search } from "./components/Search";
 
+
+export interface DataResponse {
+  data: Array<Record<string, string>>;
+  message: string;
+}
 
 const APP_STATUS = {
   IDLE: "idle",
@@ -12,7 +18,7 @@ const APP_STATUS = {
 
 function App() {
 
-  const [data, setData] = useState<Array<Record<string,string>>>([]);
+  const [data, setData] = useState<DataResponse>();
   const [error, setError] = useState<Error | null>(null);
   const [status, setStatus] = useState<typeof APP_STATUS[keyof typeof APP_STATUS]>(APP_STATUS.IDLE);
   const [upfile, setUpfile] = useState<File | null>(null);
@@ -31,6 +37,7 @@ function App() {
 
     setStatus(APP_STATUS.LOADING);
 
+    //Logica de manejo de errores en el UploadFile
     const [err, newData] = await uploadFile(upfile);
     console.log({err, newData});
     
@@ -41,6 +48,9 @@ function App() {
 
     if(newData) setData(newData);
     setStatus(APP_STATUS.UPLOADED)
+
+    console.log(data);
+    
   }
 
   return (
@@ -56,9 +66,15 @@ function App() {
         >
           Upload
         </button>
-        {status === APP_STATUS.LOADING? "🔄" : "" }
-        {status === APP_STATUS.UPLOADED? "✅" : "" }
-        {status === APP_STATUS.ERROR? `❌ ${error}` : "" }
+        {status === APP_STATUS.LOADING && "🔄" }
+        {status === APP_STATUS.UPLOADED && "✅" }
+        {status === APP_STATUS.ERROR && `❌ ${error}` }
+
+        <hr />
+
+        {status === APP_STATUS.UPLOADED && (<Search initialData={data!}/>) }
+
+
       </form>
     </>
   )

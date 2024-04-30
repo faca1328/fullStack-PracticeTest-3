@@ -1,6 +1,7 @@
+import { DataResponse } from "../App";
 
 
-export const uploadFile = async (file: File): Promise<[Error?, Array<Record<string,string>>?]> => {
+export const uploadFile = async (file: File): Promise<[Error?, DataResponse?]> => {
     const formData = new FormData();
     formData.append('file', file)
 

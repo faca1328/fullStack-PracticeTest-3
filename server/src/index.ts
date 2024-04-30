@@ -35,7 +35,7 @@ app.post('/api/files', update.single('file'), async (req, res) => {
         res.status(500).send('Error convirtiendo a Json');
     };
 
-    return res.status(200).json({ data: userData, messege: 'ok' });
+    return res.status(200).json({ data: userData, message: 'ok' });
 });
 
 app.get('/api/files', async (req, res) => {
